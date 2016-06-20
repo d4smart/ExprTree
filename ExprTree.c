@@ -19,8 +19,7 @@ typedef struct _node
 } Node;
 
 Node *root;             //表达式树根节点
-int isroot = 1;         //记录二叉树根节点
-int base = 0;           //用于对优先级进行浮动变换，每进入一层括号加一
+int base;               //用于对优先级进行浮动变换，每进入一层括号加一
 
 int IsOperator(char c);             //判断字符是否是运算符
 char *MoveToEnd(char *str);         //将文件指针移动到字符串末尾
@@ -42,6 +41,8 @@ int main()
 
     while(scanf("%s", expr) != EOF)
     {
+        base = 0;
+
         if(!Check(expr))
         {
             printf("Expression invalid!\n");
@@ -50,10 +51,11 @@ int main()
         }
 
         root = (Node *)malloc(sizeof(Node));
+        RemoveBrackets(expr);
         root = MakeTree(root, expr);
 
-        int result = CalExpr(root);
-        printf("Result is %d.\n", result);
+        double result = CalExpr(root);
+        printf("Result is %f.\n", result);
         
         printf("Enter the expression to caculate, press ctrl+c to quit: ");
     }
@@ -137,11 +139,13 @@ Node *MakeTree(Node *node, char *str)
 
     //CutExpr(lstr, str, opr);
     strncpy(lstr, str, opr-str);
+    RemoveBrackets(lstr);
     node->left = (Node *)malloc(sizeof(Node));
     MakeTree(node->left, lstr);
 
     //CutExpr(rstr, opr+1, cur+1);
     strncpy(rstr, opr+1, cur-opr);
+    RemoveBrackets(rstr);
     node->right = (Node *)malloc(sizeof(Node));
     MakeTree(node->right, rstr);
 
@@ -197,7 +201,12 @@ char *FriLstOpr(char *str)
 
     while(*str)
     {
-        if(IsOperator(*str))
+        if (*str == ')')
+            base++;
+        if (*str == '(')
+            base--;
+
+        if (IsOperator(*str))
         {
             tPri = GetPriority(*str, 1);
 
@@ -206,13 +215,9 @@ char *FriLstOpr(char *str)
                 opr = str;
                 Pri = tPri;
             }
-
-            str--;
         }
-        else
-        {
-            str--;
-        }
+        
+        str--;
     }
 
     return opr;
@@ -227,6 +232,8 @@ double CalExpr(Node *node)
 
     double LeftResult = CalExpr(node->left);
     double RightResult = CalExpr(node->right);
+    free(node->left);
+    free(node->right);
 
     if (node->ele == '+')
     {
@@ -255,9 +262,10 @@ int GetPriority(char c, int flag)
 {
     if (c == '+' || c == '-')
         return base * 10 + 1;
-
     else if (c == '*' || c == '/')
         return base * 10 + 2;
+    else if (c == '(' || c == ')')
+        return base * 10 + 3;
 
     else
     {
