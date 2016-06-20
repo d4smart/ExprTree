@@ -18,8 +18,8 @@ typedef struct _node
     struct _node *right;
 } Node;
 
-Node *root = (Node *)malloc(sizeof(Node));  //表达式树根节点
-int isroot = 1;        //记录二叉树根节点
+Node *root;             //表达式树根节点
+int isroot = 1;         //记录二叉树根节点
 
 int IsOperator(char c);             //判断字符是否是运算符
 char *MoveToEnd(char *str);         //将文件指针移动到字符串末尾
@@ -48,6 +48,7 @@ int main()
             continue;
         }
 
+        root = (Node *)malloc(sizeof(Node));
         root = MakeTree(root, expr);
         //printf("%s\n", expr);
 
