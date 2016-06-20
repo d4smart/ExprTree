@@ -4,7 +4,7 @@
   > Mail:         d4smart@foxmail.com
   > Created Time: 2016年06月19日 星期日 21时45分43秒
   > Version:      0.0.1
-  > LastChange:   
+  > LastChange:   括号解决方案，浮动优先级，括号匹配（6.20）
  *************************************************************************/
 
 #include <stdio.h>
@@ -20,6 +20,7 @@ typedef struct _node
 
 Node *root;             //表达式树根节点
 int isroot = 1;         //记录二叉树根节点
+int base = 0;           //用于对优先级进行浮动变换，每进入一层括号加一
 
 int IsOperator(char c);             //判断字符是否是运算符
 char *MoveToEnd(char *str);         //将文件指针移动到字符串末尾
@@ -28,9 +29,8 @@ char *FriLstOpr(char *str);         //从尾部开始向前找到第一个优先
 int Check(char *expr);              //检查输入的表达式是否合法
 Node *MakeTree(Node *node, char *str);  //根据表达式生成表达式树（二叉树）
 double CalExpr(Node *node);            //根据表达式树计算表达式的值
-int IsNumber(char *str);           //判断字符串是否为纯数字
-//int ConvertToNum(char *str);        //将纯数字字符串转化成数字
-//void CutExpr(char *str, char *start, char *end);    //将表达式按运算符进行分割
+int IsNumber(char *str);            //判断字符串是否为纯数字
+void RemoveBrackets(char *str);     //去除表达式中多余的括号（包含整个式子的）
 
 int main()
 {
@@ -45,16 +45,13 @@ int main()
         if(!Check(expr))
         {
             printf("Expression invalid!\n");
+            printf("Enter the expression to caculate, press ctrl+c to quit: ");
             continue;
         }
 
         root = (Node *)malloc(sizeof(Node));
         root = MakeTree(root, expr);
-        //printf("%s\n", expr);
 
-        //cur = MoveToEnd(expr);
-        //opr = FriLstOpr(cur);
-        //printf("%c\n", *opr);
         int result = CalExpr(root);
         printf("Result is %d.\n", result);
         
@@ -83,8 +80,43 @@ int Check(char *expr)
 
     if (pos != 0)
         return 0;
-    return 1;
-}    
+    else 
+        return 1;
+}
+
+void RemoveBrackets(char *str)
+{
+    char *pos;
+    pos = str;
+
+    if (*pos != '(')
+        return;
+
+    int inner = 0, BottomTime = 0;
+    while(*pos)
+        {
+            if (*pos == '(')
+                inner++;
+            if (*pos == ')')
+                inner--;
+
+            if (inner == 0)
+                BottomTime++;
+            pos++;
+        }
+
+    if (BottomTime != 1)
+        return;
+
+    pos = str;
+    while(*(pos+2))
+    {
+        *pos = *(pos+1);
+        pos++;
+    }
+    *(pos) = '\0';
+    *(pos+1) = '\0';
+}
 
 Node *MakeTree(Node *node, char *str)
 {
@@ -222,13 +254,11 @@ double CalExpr(Node *node)
 int GetPriority(char c, int flag)
 {
     if (c == '+' || c == '-')
-        return 1;
+        return base * 10 + 1;
+
     else if (c == '*' || c == '/')
-        return 2;
-    else if (c == '(' && flag == 0)
-        return 0;
-    else if (c == '(' && flag == 1)
-        return 3;
+        return base * 10 + 2;
+
     else
     {
         fprintf(stderr, "Input char is invalid!\n");
