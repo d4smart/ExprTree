@@ -4,7 +4,7 @@
   > Mail:         d4smart@foxmail.com
   > Created Time: 2016年06月19日 星期日 21时45分43秒
   > Version:      0.0.1
-  > LastChange:   括号解决方案，浮动优先级，括号匹配（6.20）
+  > LastChange:   括号解决方案，浮动优先级，括号匹配（6.20）；添加注释，解决Bug（6.21）
  *************************************************************************/
 
 #include <stdio.h>
@@ -36,7 +36,7 @@ int main()
 {
     char expr[200]; //用于存储算数表达式
 
-    printf("Enter the expression to caculate, press ctrl+c to quit: ");
+    printf("\nEnter the expression to caculate, press ctrl+z(win)/ctrl+d(linux) to quit: ");
 
     while(scanf("%s", expr) != EOF) //处理主循环
     {
@@ -46,7 +46,7 @@ int main()
         if(!Check(expr))
         {
             printf("Expression invalid!\n");
-            printf("Enter the expression to caculate, press ctrl+c to quit: ");
+            printf("\nEnter the expression to caculate, press ctrl+z(win)/ctrl+d(linux) to quit: ");
             continue;
         }
 
@@ -55,9 +55,9 @@ int main()
         root = MakeTree(root, expr);    //根据表达式生成表达式树
 
         double result = CalExpr(root);  //计算结果
-        printf("Result is %f.\n\n", result);
+        printf("Result is %.2f.\n\n", result);
         
-        printf("Enter the expression to caculate, press ctrl+c to quit: ");
+        printf("\nEnter the expression to caculate, press ctrl+z(win)/ctrl+d(linux) to quit: ");
     }
 
     printf("\n\nQuiting... Bye!\n\n");
@@ -65,7 +65,7 @@ int main()
 
 //检查输入的表达式是否合法
 //输入：表达式字符串首地址
-//输出：判断值，1是0否
+//输出：判断结果，1是0否
 //原理：表达式中左右括号必须对应，且顺序遍历过程中左括号个数一定>=右括号个数
 //      最后左括号个数等于右括号个数
 int Check(char *expr)
@@ -146,7 +146,7 @@ void RemoveBrackets(char *str)
 //输出：构造出的表达式树根节点
 Node *MakeTree(Node *node, char *str)
 {
-    char lstr[100], rstr[100];  //运算符左右的字符串
+    char lstr[100] = "", rstr[100] = "";    //运算符左右的字符串，初始全部赋为空值（若不全部为空则会保留上次的不可知结果，出现Bug 6.21）
 
     //若表达式为数字，则创建节点存放数字并返回节点
     if(IsNumber(str))
