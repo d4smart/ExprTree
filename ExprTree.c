@@ -14,10 +14,10 @@
 //二叉树节点结构体
 typedef struct _node
 {
-    char operator;
-    int digit;
-    struct _node *left;
-    struct _node *right;
+    char operator;          //运算符
+    int digit;              //操作数
+    struct _node *left;     //左子树
+    struct _node *right;    //右子树
 } Node;
 
 Node *root;                         //表达式树根节点
@@ -306,7 +306,7 @@ int GetPriority(char c)
     else if (c == '(' || c == ')')
         return base * 10 + 3;
 
-    else
+    else    //不合法退出
     {
         fprintf(stderr, "Input char is invalid!\n");
         return -1;
