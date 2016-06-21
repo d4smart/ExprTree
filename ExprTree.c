@@ -14,7 +14,8 @@
 //二叉树节点结构体
 typedef struct _node
 {
-    char ele;
+    char operator;
+    int digit;
     struct _node *left;
     struct _node *right;
 } Node;
@@ -152,7 +153,7 @@ Node *MakeTree(Node *node, char *str)
     if(IsNumber(str))
     {
         int num = atoi(str);
-        node->ele = num;
+        node->digit = num;
         //node = ptr;
 
         return node;
@@ -160,7 +161,7 @@ Node *MakeTree(Node *node, char *str)
 
     char *cur = MoveToEnd(str); //移动到字符串末尾
     char *opr = FriLstOpr(cur); //找出优先级最低的运算字符
-    node->ele = *opr;           //存储运算符
+    node->operator = *opr;           //存储运算符
 
     strncpy(lstr, str, opr-str);    //切割左边的字符串
     RemoveBrackets(lstr);           //去除多余括号
@@ -261,8 +262,8 @@ double CalExpr(Node *node)
     double result;
 
     //节点为数字直接返回数字
-    if (!IsOperator(node->ele))
-        return node->ele;
+    if (node->digit)
+        return node->digit;
 
     double LeftResult = CalExpr(node->left);    //计算左子树结果
     double RightResult = CalExpr(node->right);  //计算右子树结果
@@ -272,19 +273,19 @@ double CalExpr(Node *node)
     free(node->right);
 
     //运算
-    if (node->ele == '+')
+    if (node->operator == '+')
     {
         result = LeftResult + RightResult;
     }
-    else if (node->ele == '-')
+    else if (node->operator == '-')
     {
         result = LeftResult - RightResult;
     }
-    else if (node->ele == '*')
+    else if (node->operator == '*')
     {
         result = LeftResult * RightResult;
     }
-    else if (node->ele == '/')
+    else if (node->operator == '/')
     {
         result = LeftResult / RightResult;
     }
